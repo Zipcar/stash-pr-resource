@@ -132,7 +132,7 @@ func noOpenPR(branch StashBranch) bool {
 }
 
 func pathNotInPrs(branch StashBranch, input common.ConcourseInput) bool {
-	if len(input.Source.Paths) > 0 {
+	if len(input.Source.Paths) > 0 && len(branch.Metadata.PullRequestMD.PullRequest.State) > 0 {
 		pullRequestChangedPaths := getStashBranchPullRequestChangePaths(input, branch.Metadata.PullRequestMD.PullRequest.ID)
 		for _, changedPath := range pullRequestChangedPaths {
 			for _, desiredPath := range input.Source.Paths {
