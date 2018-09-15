@@ -1,5 +1,7 @@
 FROM golang:alpine AS build
 
+RUN apk update && apk --no-cache add bash curl git ca-certificates openssh gcc musl-dev
+
 COPY assets /assets
 
 RUN go build -o /assets/check /assets/check.go && \
