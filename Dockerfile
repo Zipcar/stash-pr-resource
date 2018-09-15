@@ -20,8 +20,6 @@ RUN cd /assets/common && \
 
 FROM alpine:edge AS resource
 
-RUN apk update && apk --no-cache add bash curl git ca-certificates openssh
-
 COPY --from=build /assets/check /opt/resource/check
 COPY --from=build /assets/in /opt/resource/in
 COPY --from=build /assets/out /opt/resource/out
