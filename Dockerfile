@@ -1,6 +1,6 @@
 FROM golang:alpine AS build
 
-RUN apk update && apk --no-cache add bash curl git ca-certificates openssh gcc musl-dev
+RUN apk update && apk --no-cache add gcc musl-dev
 
 COPY assets /assets
 
@@ -19,6 +19,8 @@ RUN cd /assets/common && \
 
 
 FROM alpine:edge AS resource
+
+RUN apk update && apk --no-cache add bash curl git ca-certificates openssh
 
 COPY --from=build /assets/check /opt/resource/check
 COPY --from=build /assets/in /opt/resource/in
