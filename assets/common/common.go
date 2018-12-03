@@ -80,6 +80,36 @@ func RunGitCommand(command string, formating ...interface{}) error {
 	return cmd.Run()
 }
 
+// RunGitCommand generically runs a Git command and saves output to a file in .git directory
+func RunGitCommandSaveOutputToFile(command string, outputFilename string) error {
+	args := strings.Split(command, " ")
+	cmd := exec.Command("git", args...)
+	cmd.Stderr = os.Stderr
+	output, err := cmd.Output()
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(os.Args[1]+"/.git", os.FileMode(0600))
+	if err != nil {
+		return err
+	}
+
+	// remove enclosing quotes if they exist
+	if len(output) > 0 && output[0] == '"' {
+		output = output[1:]
+	}
+	if len(output) > 0 && output[len(output)-1] == '"' {
+		output = output[:len(output)-1]
+	}
+	err = ioutil.WriteFile(os.Args[1]+"/.git/"+outputFilename, output, os.FileMode(0600))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // OutputVersion prints a version string to standard out based on the given ConcourseVersion object
 func OutputVersion(version ConcourseVersion) error {
 	output, err := json.Marshal(struct {
