@@ -74,17 +74,13 @@ func SetupSSHKey(source ConcourseSource) error {
 
 // RunGitCommand generically runs a Git command
 func RunGitCommand(command string, formating ...interface{}) error {
-	args := strings.Split(fmt.Sprintf(command, formating...), " ")
-	cmd := exec.Command("git", args...)
-	cmd.Stderr = os.Stderr
+	cmd := prepareGitCommand(command, formating...)
 	return cmd.Run()
 }
 
 // RunGitCommand generically runs a Git command and saves output to a file in .git directory
 func RunGitCommandSaveOutputToFile(command string, outputFilename string) error {
-	args := strings.Split(command, " ")
-	cmd := exec.Command("git", args...)
-	cmd.Stderr = os.Stderr
+	cmd := prepareGitCommand(command)
 	output, err := cmd.Output()
 	if err != nil {
 		return err
@@ -108,6 +104,17 @@ func RunGitCommandSaveOutputToFile(command string, outputFilename string) error 
 	}
 
 	return nil
+}
+
+// Prepares git command along with arguments that will be executed
+func prepareGitCommand(command string, formating ...interface{}) *exec.Cmd {
+	if formating != nil {
+		command = fmt.Sprintf(command, formating...)
+	}
+	args := strings.Split(command, " ")
+	cmd := exec.Command("git", args...)
+	cmd.Stderr = os.Stderr
+	return cmd
 }
 
 // OutputVersion prints a version string to standard out based on the given ConcourseVersion object
