@@ -74,10 +74,47 @@ func SetupSSHKey(source ConcourseSource) error {
 
 // RunGitCommand generically runs a Git command
 func RunGitCommand(command string, formating ...interface{}) error {
-	args := strings.Split(fmt.Sprintf(command, formating...), " ")
+	cmd := prepareGitCommand(command, formating...)
+	return cmd.Run()
+}
+
+// RunGitCommand generically runs a Git command and saves output to a file in .git directory
+func RunGitCommandSaveOutputToFile(command string, outputFilename string) error {
+	cmd := prepareGitCommand(command)
+	output, err := cmd.Output()
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(os.Args[1]+"/.git", os.FileMode(0600))
+	if err != nil {
+		return err
+	}
+
+	// remove enclosing quotes if they exist
+	if len(output) > 0 && output[0] == '"' {
+		output = output[1:]
+	}
+	if len(output) > 0 && output[len(output)-1] == '"' {
+		output = output[:len(output)-1]
+	}
+	err = ioutil.WriteFile(os.Args[1]+"/.git/"+outputFilename, output, os.FileMode(0600))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Prepares git command along with arguments that will be executed
+func prepareGitCommand(command string, formating ...interface{}) *exec.Cmd {
+	if formating != nil {
+		command = fmt.Sprintf(command, formating...)
+	}
+	args := strings.Split(command, " ")
 	cmd := exec.Command("git", args...)
 	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	return cmd
 }
 
 // OutputVersion prints a version string to standard out based on the given ConcourseVersion object

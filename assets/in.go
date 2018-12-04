@@ -41,4 +41,15 @@ func main() {
 	)
 
 	common.HandleFatalError(common.OutputVersion(input.Version), "Error marshaling version json")
+
+	common.HandleFatalError(
+		common.RunGitCommandSaveOutputToFile("--no-pager log -1 --pretty=format:\"%ae\"", "committer"),
+		"Error fetching git committer",
+	)
+
+	common.HandleFatalError(
+		common.RunGitCommandSaveOutputToFile("log -1 --format=format:%B", "commit_message"),
+		"Error fetching git commit message",
+	)
+
 }
